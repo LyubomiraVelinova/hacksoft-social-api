@@ -4,16 +4,16 @@ from rest_framework import serializers
 from social_api.users.models import CustomUser
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CustomUser
-#         fields = ('email', 'password', 'name', 'description', 'profile_picture')
-
-
 class RegisterUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('email', 'password', 'name', 'description', 'profile_picture', 'is_sandboxed')
+        fields = ('email', 'password', 'is_sandboxed')
+
+
+class ProfileUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('name', 'description', 'profile_picture')
 
 
 # Used for validation of the data and for authentication

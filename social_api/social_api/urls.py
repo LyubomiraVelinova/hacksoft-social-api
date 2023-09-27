@@ -23,6 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('', include('social_api.users.urls')),
     path('', include(router.urls)),
-    path('posts/', include('social_api.posts.urls')),
-    path('feed/', include('social_api.feed.urls')),
+    # path('posts/', include('social_api.posts.urls')),
+    # path('feed/', include('social_api.feed.urls')),
 ]
