@@ -1,0 +1,3 @@
+- Change the database
+- User should register only with email and password, NOT username - correct this
+- Read about Celery

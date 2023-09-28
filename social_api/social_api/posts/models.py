@@ -16,6 +16,12 @@ class Post(models.Model):
     is_deleted = models.BooleanField(
         default=False
     )
+    is_published = models.BooleanField(
+        default=False,
+    )
+    is_draft = models.BooleanField(
+        default=True,
+    )
 
 
 class Like(models.Model):

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'celery',
+
     'social_api.feed',
     'social_api.posts',
     'social_api.users'
@@ -132,3 +134,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
+
+# CELERY SETTINGS
+
+# CELERY_BROKER_URL = 'redis://127.0.0.1:6379'
+CELERY_BROKER_URL = 'redis://default:qciBAFHsDqnpP23f8lPpmOCMuuFwoG1d@redis-10273.c77.eu-west-1-1.ec2.cloud.redislabs.com:10273'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_TIMEZONE = 'Asia/Karachi' (you can write your own timezone)
