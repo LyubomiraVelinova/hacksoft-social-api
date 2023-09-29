@@ -7,7 +7,7 @@ from social_api.users.models import CustomUser
 class RegisterUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('email', 'password', 'is_sandboxed')
+        fields = ('email', 'password')
 
 
 class ProfileUserSerializer(serializers.ModelSerializer):

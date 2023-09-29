@@ -1,8 +1,6 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -59,7 +57,7 @@ class LogoutUserViewSet(viewsets.ViewSet):
         return Response({'message': 'User logged out successfully.'}, status=status.HTTP_200_OK)
 
 
-# Profiles
+# All functionality related to user profiles,
 class ProfileUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = ProfileUserSerializer
@@ -68,20 +66,8 @@ class ProfileUserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(id=self.request.user.id)
 
-
-class ProfileDetailsViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = ProfileUserSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
     def retrieve(self, request, *args, **kwargs):
         pass
-
-
-class UpdateProfileDetailsViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = ProfileUserSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def update(self, request, *args, **kwargs):
         pass
