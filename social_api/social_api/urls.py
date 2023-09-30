@@ -20,6 +20,7 @@ from django.urls import path, include
 from social_api.users.urls import router
 
 urlpatterns = [
+    path('admin/clearcache/', include('clearcache.urls')),
     path('admin/', admin.site.urls),
     # path('', include('social_api.users.urls')),
     path('', include(router.urls)),

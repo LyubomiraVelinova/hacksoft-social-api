@@ -1,3 +1,4 @@
+from cloudinary.uploader import upload
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -13,7 +14,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class ProfileUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('name', 'description', 'profile_picture')
+        fields = ('first_name', 'last_name', 'description', 'profile_picture')
+
+    def validate_profile_picture(self, value):
+        # Upload the profile picture to Cloudinary
+        if value:
+            result = upload(value)
+            return result['secure_url']
+        return None
 
 
 # Used for validation of the data and for authentication

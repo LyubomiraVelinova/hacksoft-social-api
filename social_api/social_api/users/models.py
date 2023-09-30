@@ -1,6 +1,8 @@
 from django.contrib.auth.hashers import make_password
+from django.core import validators
 from django.db import models
 from django.contrib.auth import models as auth_models
+from cloudinary import models as cloudinary_models
 
 
 class CustomUserManager(auth_models.BaseUserManager):
@@ -30,14 +32,27 @@ class CustomUserManager(auth_models.BaseUserManager):
 
 
 class CustomUser(auth_models.AbstractUser):
-    MAX_LEN_NAME = 200
+    MAX_LEN_NAME = 100
+    MIN_LEN_NAME = 2
 
     USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
     object = CustomUserManager()
 
     email = models.EmailField(unique=True)
-    name = models.CharField(
+    first_name = models.CharField(
         max_length=MAX_LEN_NAME,
+        validators=(
+            validators.MinLengthValidator(MIN_LEN_NAME),
+        ),
+        blank=True,
+        null=True,
+    )
+    last_name = models.CharField(
+        max_length=MAX_LEN_NAME,
+        validators=(
+            validators.MinLengthValidator(MIN_LEN_NAME),
+        ),
         blank=True,
         null=True,
     )
@@ -45,8 +60,7 @@ class CustomUser(auth_models.AbstractUser):
         null=True,
         blank=True,
     )
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/',
+    profile_picture = cloudinary_models.CloudinaryField(
         null=True,
         blank=True,
     )

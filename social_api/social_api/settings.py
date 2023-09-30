@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'clearcache',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -144,3 +146,11 @@ CELERY_BROKER_URL = 'redis://default:qciBAFHsDqnpP23f8lPpmOCMuuFwoG1d@redis-1027
 # CELERY_TASK_SERIALIZER = 'json'
 # CELERY_RESULT_BACKEND = 'django-db'
 # CELERY_TIMEZONE = 'Asia/Karachi' (you can write your own timezone)
+
+# Cloudinary`s configuration (cloud for uploaded pictures)
+
+cloudinary.config(
+    cloud_name="dbolfr1wy",
+    api_key="295687877241872",
+    api_secret="EvV7TeSqJFt0gEwCpVLXgRdKm-U"
+)
