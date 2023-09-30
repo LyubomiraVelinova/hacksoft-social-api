@@ -1,15 +1,9 @@
 from rest_framework import serializers
 
-from social_api.posts.models import Post, Like
+from social_api.posts.models import Post
 
 
-class PostSerializer(serializers.ModelSerializer):
+class CommonPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
-
-
-class LikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
         fields = '__all__'

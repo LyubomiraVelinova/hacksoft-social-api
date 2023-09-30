@@ -65,3 +65,4 @@ class CustomUser(auth_models.AbstractUser):
         blank=True,
     )
     is_sandboxed = models.BooleanField(default=True)
+    is_valid = models.BooleanField(default=False)
