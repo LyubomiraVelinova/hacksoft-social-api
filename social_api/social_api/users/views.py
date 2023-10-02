@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import permissions
-from rest_framework import generics as rest_views
+from rest_framework import generics as api_views
 
 from social_api.users.models import CustomUser
 from social_api.users.serializers import LoginUserSerializer, RegisterUserSerializer, ProfileUserUpdateSerializer,\
@@ -60,7 +60,13 @@ class UserAuthenticationViewSet(viewsets.ViewSet):
         return Response({'message': 'User logged out successfully.'}, status=status.HTTP_200_OK)
 
 
-class ProfileUserRetrieveAPI(rest_views.RetrieveAPIView):
+# For delete
+class UserListView(api_views.ListCreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = ProfileUserRetrieveSerializer
+
+
+class ProfileUserRetrieveAPI(api_views.RetrieveAPIView):
     serializer_class = ProfileUserRetrieveSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -68,7 +74,12 @@ class ProfileUserRetrieveAPI(rest_views.RetrieveAPIView):
         return self.request.user
 
 
-class ProfileUserUpdateAPI(rest_views.UpdateAPIView):
+user_serializer = ProfileUserRetrieveSerializer(
+    instance=CustomUser.objects.all()
+)
+
+
+class ProfileUserUpdateAPI(api_views.UpdateAPIView):
     serializer_class = ProfileUserUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
