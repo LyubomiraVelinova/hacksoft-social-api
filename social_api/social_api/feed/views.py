@@ -5,10 +5,12 @@ from social_api.posts.models import Post
 from social_api.posts.serializers import CommonPostSerializer
 
 
-# Предложеният код използва LimitOffsetPagination, който позволява на клиентите да задават "offset" (отместване)
-# и "limit" (ограничение) за резултатите, които искат да видят. Този вид пагинация обаче е по-подходящ за
-# "infinite scroll", тъй като не изисква клиентите да проследяват номера на страниците
-# и е по-удобен за скролиране в нататъшните резултати.
+'''
+API that returns a feed of all posts that were published.
+This API is going to be rendered in a list with “infinite scroll”.
+The API is returning the last 20 posts.
+Accessible for authenticated users only.
+'''
 
 
 class FeedListAPIView(api_views.ListAPIView):

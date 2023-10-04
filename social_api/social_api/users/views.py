@@ -1,69 +1,97 @@
-from cloudinary.uploader import upload
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import generics as api_views
 
 from social_api.users.models import CustomUser
-from social_api.users.serializers import LoginUserSerializer, RegisterUserSerializer, ProfileUserUpdateSerializer,\
+from social_api.users.serializers import LoginUserSerializer, RegisterUserSerializer, ProfileUserUpdateSerializer, \
     ProfileUserRetrieveSerializer
+'''
+Public API for registration
+Users can authenticate using email & password.
+'''
 
 
-class UserAuthenticationViewSet(viewsets.ViewSet):
-    authentication_classes = []
-    permission_classes = []
+class RegisterUserAPIView(api_views.CreateAPIView):
+    serializer_class = RegisterUserSerializer
+    permission_classes = [permissions.AllowAny]
 
-    @staticmethod
-    def create(request):
-        serializer = RegisterUserSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            password = serializer.validated_data['password']
+    def create(self, request, *args, **kwargs):
+        try:
+            # When a new user is registered, that user is “sandboxed”
+            data = {}
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                account = serializer.save(is_sandboxed=True, is_valid=False)
+                token = Token.objects.get_or_create(user=account)[0].key
+                data["message"] = "User registered successfully"
+                data["email"] = account.email
+                data["token"] = token
 
-            user = CustomUser.objects.create_user(email=email, password=password, is_sandboxed=True, is_valid=False)
+                return Response(data, status=status.HTTP_201_CREATED)
 
-            # User authentication
-            authenticated_user = authenticate(request=request, username=email, password=password)
-            if authenticated_user:
-                login(request, authenticated_user)
-                # Generating token
-                token, _ = Token.objects.get_or_create(user=authenticated_user)
-                return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
-            else:
-                return Response({'error': 'Unable to authenticate user.'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @staticmethod
-    def login(self, request):
-        serializer = LoginUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        except IntegrityError as e:
+            raise ValidationError({"400": str(e)})
 
-        if user:
-            login(request, user)
-            # Get or create token
-            token, _ = Token.objects.get_or_create(user=user)
-            # Return token as a part of the response
-            return Response(
-                {'token': token.key, 'message': 'User logged in successfully.'},
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response({'error': 'Unable to authenticate user.'}, status=status.HTTP_401_UNAUTHORIZED)
+        except KeyError as e:
+            print(e)
+            raise ValidationError({"400": f'Field {str(e)} missing'})
 
-    @staticmethod
-    def logout(self, request):
+
+'''
+API for logging in.
+Users can authenticate using email & password.
+'''
+
+
+class LoginUserAPIView(api_views.CreateAPIView):
+    serializer_class = LoginUserSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        data = {}
+        email = self.request.data.get('email')
+
+        try:
+            account = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise ValidationError({"400": "Account doesn't exist"})
+
+        token, _ = Token.objects.get_or_create(user=account)
+
+        login(request, account)
+        data["message"] = "User logged in"
+        data["email"] = account.email
+
+        response_data = {"data": data, "token": token.key}
+
+        return Response(response_data)
+
+
+'''
+API for logging out
+'''
+
+
+class LogoutUserAPIView(api_views.CreateAPIView):
+    def create(self, request, *args, **kwargs):
+        request.user.auth_token.delete()
         logout(request)
-        return Response({'message': 'User logged out successfully.'}, status=status.HTTP_200_OK)
+        return Response('User logged out successfully', status=status.HTTP_200_OK)
 
 
-# For delete
-class UserListView(api_views.ListCreateAPIView):
-    queryset = CustomUser.objects.all()
-    serializer_class = ProfileUserRetrieveSerializer
+# PROFILES
+
+'''
+API for getting the data for the currently logged-in user
+Accessible for authenticated users only
+'''
 
 
 class ProfileUserRetrieveAPI(api_views.RetrieveAPIView):
@@ -74,9 +102,10 @@ class ProfileUserRetrieveAPI(api_views.RetrieveAPIView):
         return self.request.user
 
 
-user_serializer = ProfileUserRetrieveSerializer(
-    instance=CustomUser.objects.all()
-)
+'''
+API for updating the user data (everything without email / password) for the currently logged-in user.
+Accessible for authenticated users only.
+'''
 
 
 class ProfileUserUpdateAPI(api_views.UpdateAPIView):
@@ -85,20 +114,3 @@ class ProfileUserUpdateAPI(api_views.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
-
-
-# class ProfileUserViewSet(viewsets.ModelViewSet):
-#     def update(self, request, *args, **kwargs):
-#         serializer = ProfileUserSerializer(instance=request.user, data=request.data)
-#         if serializer.is_valid():
-#             # Get the image from the serializer data
-#             profile_picture = request.data.get('profile_picture')
-#
-#             # Uploading the image to Cloudinary and getting the URL
-#             if profile_picture:
-#                 result = upload(profile_picture)
-#                 serializer.validated_data['profile_picture'] = result['secure_url']
-#
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=400)

@@ -1,19 +1,15 @@
 from django.urls import path, include
-from rest_framework import routers
-from social_api.users.views import UserAuthenticationViewSet, ProfileUserRetrieveAPI, ProfileUserUpdateAPI, UserListView
-
-# Create instance of DefaultRouter
-router = routers.DefaultRouter()
-
-# Register views with router
-router.register(r'authentication', UserAuthenticationViewSet, basename='authentication')
+from social_api.users.views import ProfileUserRetrieveAPI, ProfileUserUpdateAPI, \
+    RegisterUserAPIView, LoginUserAPIView, LogoutUserAPIView
 
 urlpatterns = [
-    path('', UserListView.as_view()),
+    path('auth/', include([
+        path('register/', RegisterUserAPIView.as_view(), name='register'),
+        path('login/', LoginUserAPIView.as_view(), name='login'),
+        path('logout/', LogoutUserAPIView.as_view(), name='logout'),
+    ])),
     path('profile/', include([
         path('details/', ProfileUserRetrieveAPI.as_view(), name='profile details'),
         path('update/', ProfileUserUpdateAPI.as_view(), name='profile update'),
     ])),
 ]
-
-urlpatterns += router.urls

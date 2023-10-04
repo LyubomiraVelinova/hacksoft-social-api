@@ -1,14 +1,16 @@
 from cloudinary.uploader import upload
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 
 from social_api.posts.models import Like, Post
 from social_api.users.models import CustomUser
 
+UserModel = get_user_model()
+
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = UserModel
         fields = ('email', 'password')
 
 
@@ -21,10 +23,14 @@ class LoginUserSerializer(serializers.Serializer):
         email = data.get('email')
         password = data.get('password')
 
+        # Users are authenticated using email and password
         if email and password:
             user = authenticate(request=self.context.get('request'), username=email, password=password)
             if not user:
                 raise serializers.ValidationError('Unable to log in with provided credentials')
+            # until a Superuser marks that user as valid, the newly registered user cannot actually login.
+            if not user.is_valid:
+                raise serializers.ValidationError('User is not valid')
         else:
             raise serializers.ValidationError('Need both "email" and password')
 
@@ -46,6 +52,11 @@ class ProfileUserUpdateSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
 
+        if instance.profile_picture:
+            # Upload the profile picture to Cloudinary and get the URL
+            result = upload(instance.profile_picture)
+            instance.profile_picture = result['secure_url']
+
         instance.save()
         return instance
 
@@ -62,18 +73,12 @@ class ProfileUserRetrieveSerializer(serializers.ModelSerializer):
             'profile_picture',
         )
 
+    # Total likes is the sum of likes on all posts that are created by the logged-in user.
     @staticmethod
     def get_total_likes(obj):
         return Like.objects.filter(post__author=obj).count()
 
+    # Total posts is the count of all posts that are created by the logged-in user.
     @staticmethod
     def get_total_posts(obj):
         return Post.objects.filter(author=obj).count()
-
-    @staticmethod
-    def validate_profile_picture(value):
-        # Upload the profile picture to Cloudinary
-        if value:
-            result = upload(value)
-            return result['secure_url']
-        return None

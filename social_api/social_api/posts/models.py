@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 
 from social_api.users.models import CustomUser
@@ -8,9 +7,10 @@ class Post(models.Model):
     STATUS_CHOICES = (
         ('Draft', 'Draft'),
         ('Published', 'Published'),
+        ('Deleted', 'Deleted'),
     )
 
-    MAX_LEN_CHOICES = 15
+    MAX_LEN_CHOICES = 10
 
     author = models.ForeignKey(
         CustomUser,
@@ -20,23 +20,21 @@ class Post(models.Model):
         null=False,
         blank=False,
     )
-    timestamps = models.DateTimeField()
-    is_deleted = models.BooleanField(
-        default=False,
+    timestamps = models.DateTimeField(
+        auto_now_add=True,
     )
-    # My implementation-as a user created a post can choose whether to publish or draft
     status = models.CharField(
         max_length=MAX_LEN_CHOICES,
         choices=STATUS_CHOICES,
         default='Draft',
-        null=True,
-        blank=True,
     )
     likes = models.ManyToManyField(
         CustomUser,
         related_name='liked_posts',
-        blank=True,
+    )
+    deleted_at = models.DateTimeField(
         null=True,
+        blank=True
     )
 
 

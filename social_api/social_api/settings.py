@@ -123,18 +123,21 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
+AUTHENTICATION_BACKENDS = ['social_api.users.auth_backends.EmailBackend']
 
 # Configure Django REST framework settings for Token Authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
 }
 
-# CELERY SETTINGS
-
+# CELERY configurations
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')
 # CELERY_ACCEPT_CONTENT = ['application/json']
 # CELERY_RESULT_SERIALIZER = 'json'
@@ -143,7 +146,6 @@ CELERY_BROKER_URL = config('CELERY_BROKER_URL')
 # CELERY_TIMEZONE = 'Asia/Karachi' (you can write your own timezone)
 
 # Cloudinary`s configuration (cloud for uploaded pictures)
-
 CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
 CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY')
 CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
