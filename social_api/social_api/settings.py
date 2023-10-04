@@ -139,11 +139,6 @@ REST_FRAMEWORK = {
 
 # CELERY configurations
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_BACKEND = 'django-db'
-# CELERY_TIMEZONE = 'Asia/Karachi' (you can write your own timezone)
 
 # Cloudinary`s configuration (cloud for uploaded pictures)
 CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
